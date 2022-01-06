@@ -1,6 +1,7 @@
 const conexao = require('../infraestrutura/conexao');
 const moment = require('moment');// para manipulação de datas
 const { json } = require('body-parser');
+const { default: axios } = require('axios');// para consumir APIs
 
 class Atendimento {
     adiciona(atendimento, res){
@@ -35,7 +36,7 @@ class Atendimento {
             conexao.query(sql, atendimentoDatado, (erro, resultados) => { // executa a query SQL
                 if (erro){
                     res.status(400).json(erro);
-                } else {
+                } else {    
                     res.status(201).json(atendimento);
                 }
             });
@@ -44,11 +45,14 @@ class Atendimento {
 
     buscaPorId(id, res){
         const sql = `SELECT * FROM Atendimentos WHERE id=${id}`;
-        conexao.query(sql, (erro, resultados) => {
+        conexao.query(sql, async (erro, resultados) => {
+            const atendimento = resultados[0];
+            const cpf = atendimento.cliente;// pega o CPF salvo no BD
             if(erro){
                 res.status(400).json(erro);
             } else {
-                const atendimento = resultados[0]
+                const {data} = await axios.get(`http://localhost:8082/${cpf}`); // consumindo API com Axios para obter informacoes do cliente
+                atendimento.cliente = data;
                 res.status(200).json(atendimento);
             }
         })

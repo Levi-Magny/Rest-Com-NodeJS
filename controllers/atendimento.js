@@ -9,7 +9,7 @@ module.exports = app => {
     })
 
     app.get('/atendimentos/:id', (req, res) => {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id); // para pegar os parametros da url
         Atendimento.buscaPorId(id, res);
     })
 
