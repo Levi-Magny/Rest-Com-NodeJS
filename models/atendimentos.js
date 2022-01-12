@@ -1,4 +1,4 @@
-const conexao = require('../infraestrutura/conexao');
+const conexao = require('../infraestrutura/database/conexao');
 const moment = require('moment');// para manipulação de datas
 const { json } = require('body-parser');
 const { default: axios } = require('axios');// para consumir APIs
