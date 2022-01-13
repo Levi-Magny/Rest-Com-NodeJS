@@ -2,7 +2,7 @@ const conexao = require('../infraestrutura/database/conexao');
 const moment = require('moment');// para manipulação de datas
 const { json } = require('body-parser');
 const { default: axios } = require('axios');// para consumir APIs
-
+const repositorio = require('../repositorios/atendimento');
 class Atendimento {
     adiciona(atendimento, res){
         const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -27,19 +27,16 @@ class Atendimento {
         const erros = validacoes.filter(campo => !campo.valido); // filtrando erros
         const existemErros = erros.length; // verificando se existem erros
         
-        if(existemErros){ // se existirem erros, retorna o objeto informativo e um header(400)
-            res.status(400).json(erros);
+        if(existemErros){ // se existirem erros, retorna os erros para o controller tratar
+            return new Promise((resolve, reject) => reject(erros));
         } else {
             const atendimentoDatado = {...atendimento, dataCriacao, data};// atualizao objeto de atendimentos
             
-            const sql = 'INSERT INTO Atendimentos SET ?'; //cria a query sql
-            conexao.query(sql, atendimentoDatado, (erro, resultados) => { // executa a query SQL
-                if (erro){
-                    res.status(400).json(erro);
-                } else {    
-                    res.status(201).json(atendimento);
-                }
-            });
+            return repositorio.adiciona(atendimentoDatado) // passando o resultado (dados) da promise para o controller
+                .then((resultados) => {
+                    const id = resultados.insertId;
+                    return ({ ...atendimento, id});
+                });
         }
     }
 
