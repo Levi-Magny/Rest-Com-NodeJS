@@ -3,28 +3,45 @@ const moment = require('moment');// para manipulação de datas
 const { json } = require('body-parser');
 const { default: axios } = require('axios');// para consumir APIs
 const repositorio = require('../repositorios/atendimento');
+
 class Atendimento {
-    adiciona(atendimento, res){
-        const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss');
-        const data = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'); // convertendo formato de data para o BD
-        
-        const dataEValida = moment(data).isSameOrAfter(dataCriacao); // verifica se a data e posterior ou atual
-        const clienteEValido = atendimento.cliente.length >= 5;
-        
-        const validacoes = [ // criando objetos para mostrar os erros
+
+    constructor() {
+
+        this.dataEValida = ({data, dataCriacao})  => moment(data).isSameOrAfter(dataCriacao); // verifica se a data e posterior ou atual
+        this.clienteEValido = (tamanho) => tamanho >= 5;
+
+        this.valida = parametros => this.validacoes.filter(campo => {
+            const {nome} = campo;
+            const parametro = parametros[nome];
+
+            return !campo.valido(parametro);
+        })
+
+        this.validacoes = [ // criando objetos para mostrar os erros
             {
                 nome: 'data',
-                valido: dataEValida,
+                valido: this.dataEValida,
                 mensagem: 'Data deve ser maior ou igual à atual.'
             },
             {
                 nome: 'cliente',
-                valido: clienteEValido,
+                valido: this.clienteEValido,
                 mensagem: 'Nome do cliente deve possuir 5 ou mais caracteres.'
             }
         ];
-        
-        const erros = validacoes.filter(campo => !campo.valido); // filtrando erros
+    }
+
+    adiciona(atendimento, res){
+        const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss');
+        const data = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'); // convertendo formato de data para o BD
+
+        const parametros = {
+            data: {data, dataCriacao},
+            cliente: {tamanho: atendimento.cliente.length}
+        }
+
+        const erros = this.valida(parametros); // filtrando erros
         const existemErros = erros.length; // verificando se existem erros
         
         if(existemErros){ // se existirem erros, retorna os erros para o controller tratar
