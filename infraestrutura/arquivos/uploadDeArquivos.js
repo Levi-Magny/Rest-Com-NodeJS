@@ -8,7 +8,7 @@ module.exports = (caminho, nomeArquivo, callbackImagemCriada) => {
     const tipo_e_valido = tiposValidos.indexOf(tipo.substring(1)) !== -1; // Verifica se o tipo e valido
 
     if(tipo_e_valido) {
-        const novoCaminho = `./assets//imagens/${nomeArquivo}`;
+        const novoCaminho = `./assets/imagens/${nomeArquivo}`;
         fs.ReadStream(caminho)
             .pipe(fs.createWriteStream(novoCaminho))
             .on('finish', () => callbackImagemCriada(false, novoCaminho));

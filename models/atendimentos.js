@@ -11,7 +11,7 @@ class Atendimento {
         this.dataEValida = ({data, dataCriacao})  => moment(data).isSameOrAfter(dataCriacao); // verifica se a data e posterior ou atual
         this.clienteEValido = (tamanho) => tamanho >= 5;
 
-        this.valida = parametros => this.validacoes.filter(campo => {
+        this.valida = parametros => this.validacoes.filter(campo => { //passa por cada item que deve ser verificado passando os parametros necessários para cada verificacao.
             const {nome} = campo;
             const parametro = parametros[nome];
 
@@ -73,15 +73,7 @@ class Atendimento {
     }
 
     lista(res){
-        const sql = 'SELECT * FROM Atendimentos';
-
-        conexao.query(sql, (erro, resultados) => {
-            if(erro){
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json(resultados)
-            }
-        })
+        return repositorio.lista();
     }
 
     altera(id, valores, res){

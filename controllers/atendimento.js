@@ -1,11 +1,14 @@
+const res = require('express/lib/response');
 const Atendimento = require('../models/atendimentos');
 /**
  * criando rotas para a API
  * @param {*} app app criado pelo express
  */
 module.exports = app => {
-    app.get('/atendimentos', (req, res) => {
-        Atendimento.lista(res);
+    app.get('/atendimentos', (req) => {
+        Atendimento.lista(res)
+            .then(resultados => res.status(200).json(resultados))
+            .catch(erros => res.status(400).json(erros));
     })
 
     app.get('/atendimentos/:id', (req, res) => {
